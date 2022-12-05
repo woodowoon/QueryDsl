@@ -66,5 +66,33 @@ public class QueryDslBasicTest {
         // then
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
+
+    @Test
+    public void search() throws Exception {
+        // given & when
+        Member findMember = queryFactory
+                .selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.eq(10))) // and 로 검색하는 쿼리가 나간다.
+                .fetchOne();
+
+        // then
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void searchAndParam() throws Exception {
+        // given & when
+        Member findMember = queryFactory
+                .selectFrom(member)
+                .where(
+                        member.username.eq("member1"), // and 랑 똑같다.
+                        member.age.eq(10)
+                )
+                .fetchOne();
+
+        // then
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
     
 }
