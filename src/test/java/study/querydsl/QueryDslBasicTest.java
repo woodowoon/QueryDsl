@@ -218,4 +218,42 @@ public class QueryDslBasicTest {
         assertThat(teamB.get(member.age.avg())).isEqualTo(35); // (30 + 40) / 2
     }
 
+    /**
+     * 팀 A에 소속된 모든 회원
+     */
+    @Test
+    public void join() {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .join(member.team, team) // leftJoin, rightJoin 전부 가능하다.// 현재는 inner 조인의 형태
+                .where(team.name.eq("teamA"))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("member1", "member2");
+    }
+
+    /**
+     * 세타 조인 (막 조인하는 것)
+     *  외부 조인이 불가능 하다.
+     *  -> 다음에 설명할 조인 on을 사용하면 외부 조인이 가능해졌다.
+     * 회원의 이름이 팀 이름과 같은 회원 조
+     */
+    @Test
+    public void theta_join() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
+
+    }
 }
