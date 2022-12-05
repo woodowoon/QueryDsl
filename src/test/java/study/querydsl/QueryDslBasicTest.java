@@ -13,6 +13,7 @@ import study.querydsl.entity.Team;
 import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 @SpringBootTest
 @Transactional
@@ -55,14 +56,11 @@ public class QueryDslBasicTest {
 
     @Test
     public void startQueryDsl() throws Exception {
-        // given
-        QMember m = new QMember("m");
-
         // when
         Member findMember = queryFactory
-                .select(m)
-                .from(m)
-                .where(m.username.eq("member1"))
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
                 .fetchOne();
 
         // then
