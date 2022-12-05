@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import study.querydsl.entity.QMember;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
@@ -94,5 +97,57 @@ public class QueryDslBasicTest {
         // then
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
-    
+
+    @Test
+    public void resultFetch() throws Exception {
+        // given
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        Member fetchFirst = queryFactory
+                .selectFrom(member)
+                .fetchFirst();// limit(1).fetchOne() 랑 같다.
+
+//        QueryResults<Member> results = queryFactory
+//                .selectFrom(member)
+//                .fetchResults(); // QueryDsl 버전이 올라가면서 지원 X
+
+//        long total = queryFactory
+//                .selectFrom(member)
+//                .fetchCount(); // QueryDsl 버전이 올라가면서 지원X
+
+    }
+
+    /**
+     * 회원 정렬 순서
+     * 1. 회원 나이 내림차순 (desc)
+     * 2. 회원 이름 올림차순 (asc)
+     * 단 2에서 회원 이름이 없으면 마지막에 출력 (null last)
+     */
+    @Test
+    public void sort() throws Exception {
+        // given
+        em.persist(new Member(null, 100));
+        em.persist(new Member("member5", 100));
+        em.persist(new Member("member6", 100));
+
+        // when
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .where(member.age.eq(100))
+                .orderBy(member.age.desc(), member.username.asc().nullsLast()) // nullFirst 도 있다. // asc 도 있다.
+                .fetch();
+
+        Member member5 = result.get(0);
+        Member member6 = result.get(1);
+        Member memberNull = result.get(2);
+
+        // then
+        assertThat(member5.getUsername()).isEqualTo("member5");
+        assertThat(member6.getUsername()).isEqualTo("member6");
+        assertThat(memberNull.getUsername()).isNull();
+
+    }
+
 }
