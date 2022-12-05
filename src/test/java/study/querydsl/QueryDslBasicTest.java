@@ -147,6 +147,24 @@ public class QueryDslBasicTest {
         assertThat(member5.getUsername()).isEqualTo("member5");
         assertThat(member6.getUsername()).isEqualTo("member6");
         assertThat(memberNull.getUsername()).isNull();
+    }
+
+    /**
+     * 페이징 처리
+     * count 는 따로 작성하는 것이 좋다.
+     */
+    @Test
+    public void paging1() throws Exception {
+        // when
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .orderBy(member.username.desc())
+                .offset(1) // 0 부터 시작한다.
+                .limit(2)
+                .fetch();
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
 
     }
 
